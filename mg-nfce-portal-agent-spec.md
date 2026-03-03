@@ -45,16 +45,17 @@ Build an agent and API that:
 
 # 3. Architecture
 
-    apps/
-      agent/
-        src/index.ts
-      api/
-        src/
-          controllers/
-          models/
-          plugins/
-          routes/
-          index.ts
+    nota-parser/
+      apps/
+        agent/
+          src/index.ts
+        api/
+          src/
+            controllers/
+            models/
+            plugins/
+            routes/
+            index.ts
 
     packages/
       core/
@@ -69,10 +70,15 @@ Build an agent and API that:
             extract.ts
             selectors.ts
             index.ts
+            __fixtures__/
+            integration.test.ts
 
     docs/
       architecture.md
       development.md
+    
+    Dockerfile
+    docker-compose.yml
 
 ------------------------------------------------------------------------
 

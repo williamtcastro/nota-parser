@@ -9,12 +9,22 @@ nota-parser/
 ├── apps/
 │   ├── agent/        # Standalone CLI agent entry point
 │   └── api/          # Elysia Web API entry point
+│       └── src/
+│           ├── controllers/ # Business logic for parsing routes (Single & Batch)
+│           ├── models/      # Swagger documentation definitions
+│           ├── plugins/     # Elysia plugins (e.g., Swagger setup)
+│           ├── routes/      # Route declarations
+│           └── index.ts     # API server entry point
 ├── packages/
 │   ├── adapters/     # Portal-specific implementations
 │   │   └── mg/       # Minas Gerais state implementations
 │   │       └── qrcode/ # Logic for parsing MG's QRCode HTML pages
+│   │           ├── __fixtures__/ # Anonymized raw HTML files for integration testing
+│   │           └── integration.test.ts # Exhaustive schema-validation tests
 │   └── core/         # Shared domain types, schemas, and utils
-└── docs/             # Project documentation
+├── docs/             # Project documentation
+├── Dockerfile        # Multi-stage build for minimal standalone deployment
+└── docker-compose.yml
 ```
 
 ## Core Components
