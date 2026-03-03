@@ -117,6 +117,19 @@ Faz o parser de uma página do portal NFC-e QRCode e retorna dados em JSON estru
 }
 ```
 
+### `POST /api/v1/parse/batch`
+Faz o parser de até 50 URLs do portal NFC-e QRCode de forma simultânea (concorrente). Retorna uma mistura de resultados processados com sucesso e objetos de erro individuais, de modo que a falha de uma URL não quebre o lote inteiro.
+
+**Body da Requisição:**
+```json
+{
+  "urls": [
+    "https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=...",
+    "https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=..."
+  ]
+}
+```
+
 **Resposta de Sucesso (200 OK):**
 ```json
 {

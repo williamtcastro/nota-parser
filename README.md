@@ -117,6 +117,19 @@ Parses an NFC-e QRCode portal page and returns structured JSON data.
 }
 ```
 
+### `POST /api/v1/parse/batch`
+Parses an array of up to 50 NFC-e QRCode portal pages concurrently. Returns a mix of parsed results and individual error objects so that a single failure doesn't crash the entire batch.
+
+**Request Body:**
+```json
+{
+  "urls": [
+    "https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=...",
+    "https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=..."
+  ]
+}
+```
+
 **Success Response (200 OK):**
 ```json
 {
