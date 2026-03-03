@@ -3,16 +3,37 @@ import { MgQrcodePortalAdapter } from "@/packages/adapters/mg/qrcode/index.ts";
 import { NfcePortalResultSchema } from "@/packages/core/schema.ts";
 import type { Context } from "elysia";
 
-const InputSchema = z.object({
+const SingleInputSchema = z.object({
   url: z.string().url("Must be a valid URL"),
 });
+
+const BatchInputSchema = z.object({
+  urls: z.array(z.string().url("Must be a valid URL")).max(50, "Max batch size is 50"),
+});
+
+// Helper for parsing a single URL without HTTP context
+async function processSingleUrl(url: string) {
+  try {
+    const adapter = new MgQrcodePortalAdapter();
+    const html = await adapter.fetch(url);
+    const rawResult = adapter.parse(html);
+    return NfcePortalResultSchema.parse(rawResult);
+  } catch (error: any) {
+    console.error(`[PARSE_ERROR] for URL ${url}:`, error);
+    return {
+      error: error?.name === "PortalParseError" ? "Parsing failed" : "Internal server error",
+      code: error?.code || "UNKNOWN_ERROR",
+      message: error?.message || "Unknown error",
+      url,
+    };
+  }
+}
 
 export class ParseController {
   static async parseNfce(context: Context) {
     const { body, set } = context;
     
-    // 1. Validate Input using Zod
-    const parsedInput = InputSchema.safeParse(body);
+    const parsedInput = SingleInputSchema.safeParse(body);
     if (!parsedInput.success) {
       set.status = 400;
       return {
@@ -22,41 +43,37 @@ export class ParseController {
     }
 
     const { url } = parsedInput.data;
+    const result = await processSingleUrl(url);
 
-    try {
-      const adapter = new MgQrcodePortalAdapter();
-      const html = await adapter.fetch(url);
-      const rawResult = adapter.parse(html);
+    if ('error' in result) {
+       set.status = result.code === "UNKNOWN_ERROR" ? 500 : 422;
+    }
+    
+    return result;
+  }
 
-      // 2. Validate Output using Zod
-      const validatedResult = NfcePortalResultSchema.parse(rawResult);
-
-      return validatedResult;
-    } catch (error: any) {
-      console.error("[PARSE_ERROR]", error);
-
-      if (error?.name === "PortalParseError") {
-        set.status = 422;
-        return {
-          error: "Parsing failed",
-          code: error.code,
-          message: error.message,
-        };
-      }
-
-      if (error instanceof z.ZodError) {
-        set.status = 500;
-        return {
-          error: "Schema validation failed for adapter output",
-          details: error.format(),
-        };
-      }
-
-      set.status = 500;
+  static async parseBatch(context: Context) {
+    const { body, set } = context;
+    
+    const parsedInput = BatchInputSchema.safeParse(body);
+    if (!parsedInput.success) {
+      set.status = 400;
       return {
-        error: "Internal server error",
-        message: error?.message || "Unknown error",
+        error: "Invalid input",
+        details: parsedInput.error.format(),
       };
     }
+
+    const { urls } = parsedInput.data;
+    
+    // Process all URLs concurrently
+    const results = await Promise.all(
+      urls.map((url) => processSingleUrl(url))
+    );
+
+    return {
+      processed: results.length,
+      results
+    };
   }
 }
