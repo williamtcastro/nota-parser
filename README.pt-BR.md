@@ -87,13 +87,15 @@ bun run build
 ./build/api
 ```
 
-### 2. Agente CLI Standalone
+### 3. Docker
 
-Para rodar o parser puramente pela linha de comando passando uma URL, sem iniciar o servidor HTTP:
+Você pode executar a aplicação facilmente usando Docker e Docker Compose. Isso construirá uma imagem mínima contendo o binário compilado pelo Bun.
 
 ```bash
-bun run agent "https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=SEUS_PARAMETROS_QRCODE"
+docker-compose up -d --build
 ```
+
+A API estará disponível em `http://localhost:3000`.
 
 ---
 
